@@ -1,0 +1,25 @@
+{
+  "stats": {
+    "2026-03-11": {
+      "work_time": 14640,
+      "break_time": 3968,
+      "cycles": 8,
+      "breaks": 8,
+      "tasks_done": 6
+    },
+    "2026-03-13": {
+      "work_time": 7418,
+      "break_time": 1800,
+      "cycles": 4,
+      "breaks": 4,
+      "tasks_done": 4
+    },
+    "2026-03-15": {
+      "work_time": 12178,
+      "break_time": 3202,
+      "cycles": 8,
+      "breaks": 8,
+      "tasks_done": 4
+    }
+  }
+}
