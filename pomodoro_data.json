@@ -20,6 +20,20 @@
       "cycles": 9,
       "breaks": 9,
       "tasks_done": 5
+    },
+    "2026-03-16": {
+      "work_time": 13500,
+      "break_time": 1800,
+      "cycles": 3,
+      "breaks": 3,
+      "tasks_done": 2
+    },
+    "2026-03-17": {
+      "work_time": 19330,
+      "break_time": 4029,
+      "cycles": 12,
+      "breaks": 12,
+      "tasks_done": 5
     }
   }
 }

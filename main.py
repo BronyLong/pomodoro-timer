@@ -437,6 +437,7 @@ class PomodoroApp:
         plt.legend()
         plt.xticks(rotation=45)
         plt.title("Productivity by day")
+        plt.grid(True)
 
         plt.show()
 
