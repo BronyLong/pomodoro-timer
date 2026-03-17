@@ -34,6 +34,13 @@
       "cycles": 12,
       "breaks": 12,
       "tasks_done": 5
+    },
+    "2026-03-18": {
+      "work_time": 0,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 0
     }
   }
 }
