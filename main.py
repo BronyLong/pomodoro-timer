@@ -22,19 +22,22 @@ class PomodoroApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Pomodoro Tracker")
-        self.root.geometry("700x1200")
+        self.root.geometry("780x900")
         self.root.minsize(720, 720)
 
         self.running = False
-        self.mode = "work"                  # work / break / long_break
-        self.control_mode = "automatic"     # automatic / manual
+        self.mode = "work"
+        self.control_mode = "automatic"
 
-        self.time_left = WORK_TIME          # для автоматического режима
-        self.period_duration = WORK_TIME    # для прогресс-бара в автоматическом режиме
-        self.manual_elapsed = 0             # для ручного режима
+        self.time_left = WORK_TIME
+        self.period_duration = WORK_TIME
+        self.manual_elapsed = 0
 
         self.last_update = time.time()
         self.tasks = []
+
+        self.stats_window = None
+        self.stats_labels = {}
 
         self.load_data()
         self.load_tasks()
@@ -263,14 +266,13 @@ class PomodoroApp:
         style.configure("Timer.TLabel", background="#ffffff", font=("Segoe UI", 40, "bold"))
         style.configure("Mode.TLabel", background="#ffffff", font=("Segoe UI", 14, "bold"))
         style.configure("TRadiobutton", background="#ffffff", font=("Segoe UI", 10))
-        style.configure("TButton", font=("Segoe UI", 10), padding=7)
+        style.configure("TButton", font=("Segoe UI", 9), padding=4)
 
         main = ttk.Frame(self.root, style="Main.TFrame", padding=14)
         main.pack(fill="both", expand=True)
 
         ttk.Label(main, text="Pomodoro Tracker", style="Title.TLabel").pack(anchor="w", pady=(0, 10))
 
-        # TIMER CARD
         timer_card = ttk.LabelFrame(main, text="Таймер", style="Card.TLabelframe", padding=14)
         timer_card.pack(fill="x", pady=(0, 10))
 
@@ -332,38 +334,27 @@ class PomodoroApp:
         buttons_frame = ttk.Frame(timer_card, style="Card.TFrame")
         buttons_frame.pack(fill="x")
 
-        ttk.Button(buttons_frame, text="Старт", command=self.start).grid(row=0, column=0, padx=4, pady=4)
-        ttk.Button(buttons_frame, text="Пауза", command=self.pause).grid(row=0, column=1, padx=4, pady=4)
-        ttk.Button(buttons_frame, text="Сброс", command=self.reset).grid(row=0, column=2, padx=4, pady=4)
+        for i in range(3):
+            buttons_frame.grid_columnconfigure(i, weight=1)
 
-        ttk.Button(buttons_frame, text="Работа", command=self.set_work).grid(row=0, column=3, padx=4, pady=4)
-        ttk.Button(buttons_frame, text="Перерыв", command=self.set_break).grid(row=0, column=4, padx=4, pady=4)
-        ttk.Button(buttons_frame, text="Длинный перерыв", command=self.set_long_break).grid(row=0, column=5, padx=4, pady=4)
+        ttk.Button(buttons_frame, text="Старт", command=self.start).grid(row=0, column=0, sticky="ew", padx=3, pady=3)
+        ttk.Button(buttons_frame, text="Пауза", command=self.pause).grid(row=0, column=1, sticky="ew", padx=3, pady=3)
+        ttk.Button(buttons_frame, text="Сброс", command=self.reset).grid(row=0, column=2, sticky="ew", padx=3, pady=3)
+
+        ttk.Button(buttons_frame, text="Работа", command=self.set_work).grid(row=1, column=0, sticky="ew", padx=3, pady=3)
+        ttk.Button(buttons_frame, text="Перерыв", command=self.set_break).grid(row=1, column=1, sticky="ew", padx=3, pady=3)
+        ttk.Button(buttons_frame, text="Длинный", command=self.set_long_break).grid(row=1, column=2, sticky="ew", padx=3, pady=3)
+
+
+        buttons_frame.grid_columnconfigure(0, weight=1)
+        buttons_frame.grid_columnconfigure(1, weight=1)
+        buttons_frame.grid_columnconfigure(2, weight=1)
+
+        ttk.Button(buttons_frame, text="Статистика", command=self.open_stats_window).grid(row=2, column=0, columnspan=3, sticky="ew", padx=3, pady=(8, 3))
 
         self.manual_hint_label = ttk.Label(timer_card, text="", style="Info.TLabel")
         self.manual_hint_label.pack(anchor="w", pady=(10, 0))
 
-        # STATS CARD
-        stats_card = ttk.LabelFrame(main, text="Статистика за сегодня", style="Card.TLabelframe", padding=14)
-        stats_card.pack(fill="x", pady=(0, 10))
-
-        self.work_label = ttk.Label(stats_card, text="", style="Info.TLabel")
-        self.break_label = ttk.Label(stats_card, text="", style="Info.TLabel")
-        self.cycle_label = ttk.Label(stats_card, text="", style="Info.TLabel")
-        self.break_count_label = ttk.Label(stats_card, text="", style="Info.TLabel")
-        self.tasks_done_label = ttk.Label(stats_card, text="", style="Info.TLabel")
-        self.control_mode_label = ttk.Label(stats_card, text="", style="Info.TLabel")
-
-        self.work_label.pack(anchor="w", pady=2)
-        self.break_label.pack(anchor="w", pady=2)
-        self.cycle_label.pack(anchor="w", pady=2)
-        self.break_count_label.pack(anchor="w", pady=2)
-        self.tasks_done_label.pack(anchor="w", pady=2)
-        self.control_mode_label.pack(anchor="w", pady=2)
-
-        ttk.Button(stats_card, text="График продуктивности", command=self.show_graph).pack(anchor="w", pady=(8, 0))
-
-        # TASKS CARD
         tasks_card = ttk.LabelFrame(main, text="Задачи", style="Card.TLabelframe", padding=14)
         tasks_card.pack(fill="both", expand=True)
 
@@ -374,7 +365,7 @@ class PomodoroApp:
         self.task_entry.pack(side="left", fill="x", expand=True, padx=(0, 8))
         self.task_entry.bind("<Return>", lambda event: self.add_task())
 
-        ttk.Button(entry_frame, text="Добавить", command=self.add_task).pack(side="left")
+        ttk.Button(entry_frame, text="Добавить", command=self.add_task, width=12).pack(side="left")
 
         list_frame = ttk.Frame(tasks_card, style="Card.TFrame")
         list_frame.pack(fill="both", expand=True)
@@ -401,10 +392,9 @@ class PomodoroApp:
         task_buttons = ttk.Frame(tasks_card, style="Card.TFrame")
         task_buttons.pack(fill="x", pady=(8, 0))
 
-        ttk.Button(task_buttons, text="Отметить выполненной", command=self.toggle_task).pack(side="left", padx=(0, 8))
-        ttk.Button(task_buttons, text="Удалить", command=self.delete_task).pack(side="left")
+        ttk.Button(task_buttons, text="Отметить выполненной", command=self.toggle_task, width=22).pack(side="left", padx=(0, 8))
+        ttk.Button(task_buttons, text="Удалить", command=self.delete_task, width=12).pack(side="left")
 
-        # STATUS
         bottom = ttk.Frame(main, style="Main.TFrame")
         bottom.pack(fill="x", pady=(10, 0))
 
@@ -412,6 +402,64 @@ class PomodoroApp:
         self.status_label.pack(side="right")
 
         self.refresh_tasks()
+
+    # --------------------------
+    # STATS WINDOW
+    # --------------------------
+
+    def open_stats_window(self):
+        if self.stats_window is not None and self.stats_window.winfo_exists():
+            self.stats_window.lift()
+            self.stats_window.focus_force()
+            self.update_stats_window()
+            return
+
+        self.stats_window = tk.Toplevel(self.root)
+        self.stats_window.title("Статистика")
+        self.stats_window.geometry("420x320")
+        self.stats_window.resizable(False, False)
+        self.stats_window.configure(bg="#f3f4f6")
+
+        container = ttk.Frame(self.stats_window, style="Main.TFrame", padding=14)
+        container.pack(fill="both", expand=True)
+
+        card = ttk.LabelFrame(container, text="Статистика за сегодня", style="Card.TLabelframe", padding=14)
+        card.pack(fill="both", expand=True)
+
+        self.stats_labels["work"] = ttk.Label(card, text="", style="Info.TLabel")
+        self.stats_labels["break"] = ttk.Label(card, text="", style="Info.TLabel")
+        self.stats_labels["cycles"] = ttk.Label(card, text="", style="Info.TLabel")
+        self.stats_labels["breaks"] = ttk.Label(card, text="", style="Info.TLabel")
+        self.stats_labels["tasks_done"] = ttk.Label(card, text="", style="Info.TLabel")
+        self.stats_labels["mode"] = ttk.Label(card, text="", style="Info.TLabel")
+
+        self.stats_labels["work"].pack(anchor="w", pady=3)
+        self.stats_labels["break"].pack(anchor="w", pady=3)
+        self.stats_labels["cycles"].pack(anchor="w", pady=3)
+        self.stats_labels["breaks"].pack(anchor="w", pady=3)
+        self.stats_labels["tasks_done"].pack(anchor="w", pady=3)
+        self.stats_labels["mode"].pack(anchor="w", pady=3)
+
+        button_row = ttk.Frame(container, style="Main.TFrame")
+        button_row.pack(fill="x", pady=(10, 0))
+
+        ttk.Button(button_row, text="Построить график", command=self.show_graph, width=18).pack(side="left")
+        ttk.Button(button_row, text="Закрыть", command=self.stats_window.destroy, width=12).pack(side="right")
+
+        self.update_stats_window()
+
+    def update_stats_window(self):
+        if self.stats_window is None or not self.stats_window.winfo_exists():
+            return
+
+        stats = self.today_stats()
+
+        self.stats_labels["work"].config(text=f"Время работы: {self.format_hms(stats['work_time'])}")
+        self.stats_labels["break"].config(text=f"Время отдыха: {self.format_hms(stats['break_time'])}")
+        self.stats_labels["cycles"].config(text=f"Завершённые циклы Pomodoro: {stats['cycles']}")
+        self.stats_labels["breaks"].config(text=f"Количество перерывов: {stats['breaks']}")
+        self.stats_labels["tasks_done"].config(text=f"Выполненные задачи: {stats['tasks_done']}")
+        self.stats_labels["mode"].config(text=f"Активный режим: {self.control_mode_text()}")
 
     # --------------------------
     # DURATIONS / MODE SWITCH
@@ -651,8 +699,6 @@ class PomodoroApp:
             fill_width = int(width * progress)
             self.progress_canvas.create_rectangle(0, 0, fill_width, height, fill=self.get_mode_color(), outline="")
         else:
-            # В ручном режиме прогресс-бар не имеет фиксированного конца.
-            # Показываем анимируемую заполняемость по циклу 60 секунд.
             progress = (self.manual_elapsed % 60) / 60 if self.running else 0
             fill_width = int(width * progress)
             self.progress_canvas.create_rectangle(0, 0, fill_width, height, fill=self.get_mode_color(), outline="")
@@ -661,7 +707,6 @@ class PomodoroApp:
         stats = self.today_stats()
 
         self.mode_label.config(text=self.mode_text(), foreground=self.get_mode_color())
-        self.control_mode_label.config(text=f"Активный режим: {self.control_mode_text()}")
 
         if self.control_mode == "automatic":
             self.mode_hint_label.config(text="Обратный отсчёт по Pomodoro с автопереключением")
@@ -676,13 +721,8 @@ class PomodoroApp:
                 text="Ручной режим: время идёт вверх, а момент перехода на перерыв ты выбираешь сам."
             )
 
-        self.work_label.config(text=f"Время работы: {self.format_hms(stats['work_time'])}")
-        self.break_label.config(text=f"Время отдыха: {self.format_hms(stats['break_time'])}")
-        self.cycle_label.config(text=f"Завершённые циклы Pomodoro: {stats['cycles']}")
-        self.break_count_label.config(text=f"Количество перерывов: {stats['breaks']}")
-        self.tasks_done_label.config(text=f"Выполненные задачи: {stats['tasks_done']}")
-
         self.draw_progress()
+        self.update_stats_window()
 
     # --------------------------
     # CLOSE
