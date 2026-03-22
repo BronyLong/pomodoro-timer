@@ -52,12 +52,20 @@
       "updated_at": "2026-03-20T23:59:58.009438"
     },
     "2026-03-21": {
-      "work_time": 1330,
+      "work_time": 4638,
       "break_time": 0,
       "cycles": 0,
       "breaks": 0,
       "tasks_done": 1,
-      "updated_at": "2026-03-21T00:23:51.946589"
+      "updated_at": "2026-03-21T19:21:35.957249"
+    },
+    "2026-03-22": {
+      "work_time": 0,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 0,
+      "updated_at": "2026-03-22T03:09:32.712144"
     }
   }
 }
