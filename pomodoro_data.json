@@ -66,6 +66,22 @@
       "breaks": 0,
       "tasks_done": 0,
       "updated_at": "2026-03-22T03:09:32.712144"
+    },
+    "2026-03-23": {
+      "work_time": 5146,
+      "break_time": 5230,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 3,
+      "updated_at": "2026-03-23T23:03:31.984946"
+    },
+    "2026-03-24": {
+      "work_time": 7999,
+      "break_time": 6088,
+      "cycles": 1,
+      "breaks": 1,
+      "tasks_done": 1,
+      "updated_at": "2026-03-24T18:15:37.778801"
     }
   }
 }
