@@ -84,12 +84,12 @@
       "updated_at": "2026-03-24T23:42:42.676151"
     },
     "2026-03-25": {
-      "work_time": 0,
+      "work_time": 12600,
       "break_time": 0,
       "cycles": 0,
       "breaks": 0,
-      "tasks_done": 0,
-      "updated_at": "2026-03-25T01:32:51.619187"
+      "tasks_done": 4,
+      "updated_at": "2026-03-25T21:34:50.732787"
     }
   }
 }

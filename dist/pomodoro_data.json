@@ -1,0 +1,95 @@
+{
+  "stats": {
+    "2026-03-11": {
+      "work_time": 14640,
+      "break_time": 3968,
+      "cycles": 8,
+      "breaks": 8,
+      "tasks_done": 6
+    },
+    "2026-03-13": {
+      "work_time": 7418,
+      "break_time": 1800,
+      "cycles": 4,
+      "breaks": 4,
+      "tasks_done": 4
+    },
+    "2026-03-15": {
+      "work_time": 13500,
+      "break_time": 3422,
+      "cycles": 9,
+      "breaks": 9,
+      "tasks_done": 5
+    },
+    "2026-03-16": {
+      "work_time": 13500,
+      "break_time": 1800,
+      "cycles": 3,
+      "breaks": 3,
+      "tasks_done": 2
+    },
+    "2026-03-17": {
+      "work_time": 19330,
+      "break_time": 4029,
+      "cycles": 12,
+      "breaks": 12,
+      "tasks_done": 5
+    },
+    "2026-03-19": {
+      "work_time": 0,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 0,
+      "updated_at": "2026-03-19T01:34:55.382440"
+    },
+    "2026-03-20": {
+      "work_time": 3821,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 1,
+      "updated_at": "2026-03-20T23:59:58.009438"
+    },
+    "2026-03-21": {
+      "work_time": 4638,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 1,
+      "updated_at": "2026-03-21T19:21:35.957249"
+    },
+    "2026-03-22": {
+      "work_time": 0,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 0,
+      "updated_at": "2026-03-22T03:09:32.712144"
+    },
+    "2026-03-23": {
+      "work_time": 5146,
+      "break_time": 5230,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 3,
+      "updated_at": "2026-03-23T23:03:31.984946"
+    },
+    "2026-03-24": {
+      "work_time": 13873,
+      "break_time": 6088,
+      "cycles": 1,
+      "breaks": 1,
+      "tasks_done": 5,
+      "updated_at": "2026-03-24T23:42:42.676151"
+    },
+    "2026-03-25": {
+      "work_time": 12600,
+      "break_time": 0,
+      "cycles": 0,
+      "breaks": 0,
+      "tasks_done": 4,
+      "updated_at": "2026-03-25T21:37:12.702950"
+    }
+  }
+}
