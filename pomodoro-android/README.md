@@ -34,3 +34,10 @@ v6 changes:
 - added statistics calendar with month navigation and date selection
 - changed app name to 'Помодоро Таймер'
 - added simple clock launcher icon
+
+
+v7 changes:
+- improved dark/light theme colors
+- reorganized buttons using FlowRow for small screens
+- improved text field, cards and stats styling
+- timer notification strengthened as ongoing foreground service (best effort; some Android versions may still let users dismiss foreground notifications)

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalLayoutApi::class)
+
 package com.example.pomodoro.ui
 
 import androidx.compose.foundation.background
@@ -6,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -15,17 +19,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,10 +59,12 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun PomodoroScreen(vm: PomodoroViewModel) {
     val state by vm.uiState.collectAsState()
     val context = LocalContext.current
+
     var taskText by rememberSaveable { mutableStateOf("") }
     var showCalendar by rememberSaveable { mutableStateOf(false) }
     var selectedDateText by rememberSaveable { mutableStateOf(LocalDate.now().toString()) }
@@ -97,77 +105,109 @@ fun PomodoroScreen(vm: PomodoroViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 16.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(
-                text = when (state.engine.mode) {
-                    "work" -> "РАБОТА"
-                    "break" -> "ПЕРЕРЫВ"
-                    else -> "ДЛИННЫЙ ПЕРЕРЫВ"
-                },
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = when (state.engine.mode) {
+                        "work" -> "РАБОТА"
+                        "break" -> "ПЕРЕРЫВ"
+                        else -> "ДЛИННЫЙ ПЕРЕРЫВ"
+                    },
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
 
-        item {
-            Text(
-                text = timerText,
-                style = MaterialTheme.typography.displayMedium
-            )
+                Text(
+                    text = timerText,
+                    style = MaterialTheme.typography.displayLarge,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
 
         item {
             LinearProgressIndicator(
                 progress = { progress },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         }
 
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { vm.startService(context) }) { Text("Старт") }
-                Button(onClick = { vm.pauseService(context) }) { Text("Пауза") }
-                Button(onClick = { vm.resetService(context) }) { Text("Сброс") }
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                MainActionButton("Старт") { vm.startService(context) }
+                MainActionButton("Пауза") { vm.pauseService(context) }
+                MainActionButton("Сброс") { vm.resetService(context) }
             }
         }
 
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { vm.setWork(context) }) { Text("Работа") }
-                Button(onClick = { vm.setBreak(context) }) { Text("Перерыв") }
-                Button(onClick = { vm.setLongBreak(context) }) { Text("Длинный") }
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                MainActionButton("Работа") { vm.setWork(context) }
+                MainActionButton("Перерыв") { vm.setBreak(context) }
+                MainActionButton("Длинный") { vm.setLongBreak(context) }
             }
         }
 
         item {
-            Button(onClick = { vm.toggleControlMode(context) }) {
+            Button(
+                onClick = { vm.toggleControlMode(context) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
                 Text(
-                    if (state.engine.controlMode == "automatic") "Переключить на ручной режим"
-                    else "Переключить на авто режим"
+                    if (state.engine.controlMode == "automatic") {
+                        "Переключить на ручной режим"
+                    } else {
+                        "Переключить на авто режим"
+                    }
                 )
             }
         }
 
         item {
-            Spacer(modifier = Modifier.height(8.dp))
+            SectionTitle("Задачи")
         }
 
         item {
-            Text(
-                text = "Задачи",
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
-
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 TaskInputField(
                     value = taskText,
                     onValueChange = { taskText = it }
                 )
-                Button(onClick = { submitTask() }) {
+
+                Button(
+                    onClick = { submitTask() },
+                    modifier = Modifier.widthIn(min = 110.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
                     Text("Добавить")
                 }
             }
@@ -184,14 +224,25 @@ fun PomodoroScreen(vm: PomodoroViewModel) {
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Статистика за сегодня",
-                    style = MaterialTheme.typography.titleLarge
+                    text = "Статистика",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.weight(1f)
                 )
-                Button(onClick = { showCalendar = !showCalendar }) {
-                    Text(if (showCalendar) "Скрыть календарь" else "Календарь")
+
+                Button(
+                    onClick = { showCalendar = !showCalendar },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    )
+                ) {
+                    Text(if (showCalendar) "Скрыть" else "Календарь")
                 }
             }
         }
@@ -222,6 +273,36 @@ fun PomodoroScreen(vm: PomodoroViewModel) {
                 )
             }
         }
+
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground
+    )
+}
+
+@Composable
+private fun MainActionButton(
+    text: String,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ) {
+        Text(text)
     }
 }
 
@@ -236,7 +317,17 @@ private fun RowScope.TaskInputField(
         modifier = Modifier.weight(1f),
         label = { Text("Новая задача") },
         placeholder = { Text("Например: Написать отчёт") },
-        singleLine = true
+        singleLine = true,
+        shape = RoundedCornerShape(16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+        )
     )
 }
 
@@ -249,22 +340,46 @@ private fun TasksList(
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(max = 400.dp),
+            .heightIn(max = 420.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(tasks, key = { it.id }) { task ->
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
                 Column(
-                    modifier = Modifier.padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text(if (task.done) "✔ ${task.text}" else task.text)
+                    Text(
+                        text = if (task.done) "✔ ${task.text}" else task.text,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { onToggle(task.id) }) {
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = { onToggle(task.id) },
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
                             Text(if (task.done) "Снять" else "Готово")
                         }
-                        Button(onClick = { onDelete(task.id) }) {
+
+                        Button(
+                            onClick = { onDelete(task.id) },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                contentColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        ) {
                             Text("Удалить")
                         }
                     }
@@ -280,20 +395,28 @@ private fun StatsBlock(
     dateLabel: String
 ) {
     val engine = remember { PomodoroEngine() }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors()
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text(dateLabel, style = MaterialTheme.typography.titleMedium)
-            Text("Время работы: ${engine.formatHms(stats.workTime)}")
-            Text("Время отдыха: ${engine.formatHms(stats.breakTime)}")
-            Text("Циклы: ${stats.cycles}")
-            Text("Перерывы: ${stats.breaks}")
-            Text("Выполненные задачи: ${stats.tasksDone}")
+            Text(
+                text = dateLabel,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text("Время работы: ${engine.formatHms(stats.workTime)}", color = MaterialTheme.colorScheme.onSurface)
+            Text("Время отдыха: ${engine.formatHms(stats.breakTime)}", color = MaterialTheme.colorScheme.onSurface)
+            Text("Циклы: ${stats.cycles}", color = MaterialTheme.colorScheme.onSurface)
+            Text("Перерывы: ${stats.breaks}", color = MaterialTheme.colorScheme.onSurface)
+            Text("Выполненные задачи: ${stats.tasksDone}", color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
@@ -310,7 +433,13 @@ private fun CalendarSection(
     val monthLabel = visibleMonth.format(DateTimeFormatter.ofPattern("LLLL yyyy", Locale("ru")))
     val cells = remember(visibleMonth) { buildCalendarCells(visibleMonth) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
         Column(
             modifier = Modifier.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -320,9 +449,17 @@ private fun CalendarSection(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = onPreviousMonth) { Text("←") }
-                Text(monthLabel.replaceFirstChar { it.titlecase(Locale("ru")) }, style = MaterialTheme.typography.titleMedium)
-                Button(onClick = onNextMonth) { Text("→") }
+                Button(onClick = onPreviousMonth, shape = RoundedCornerShape(14.dp)) {
+                    Text("←")
+                }
+                Text(
+                    monthLabel.replaceFirstChar { it.titlecase(Locale("ru")) },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Button(onClick = onNextMonth, shape = RoundedCornerShape(14.dp)) {
+                    Text("→")
+                }
             }
 
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -331,7 +468,8 @@ private fun CalendarSection(
                         text = label,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -364,17 +502,22 @@ private fun RowScope.CalendarDayCell(
     hasStats: Boolean,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    val borderColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+
     val backgroundColor = when {
-        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-        hasStats -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
+        isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
+        hasStats -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
         else -> Color.Transparent
     }
 
     Box(
         modifier = Modifier
             .weight(1f)
-            .height(42.dp)
+            .height(44.dp)
             .border(1.dp, borderColor, RoundedCornerShape(10.dp))
             .background(backgroundColor, RoundedCornerShape(10.dp))
             .clickable(onClick = onClick),
@@ -383,9 +526,14 @@ private fun RowScope.CalendarDayCell(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = date.dayOfMonth.toString(),
-                color = if (isInMonth) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
+                color = if (isInMonth) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+                },
                 style = MaterialTheme.typography.bodyMedium
             )
+
             if (hasStats) {
                 Box(
                     modifier = Modifier

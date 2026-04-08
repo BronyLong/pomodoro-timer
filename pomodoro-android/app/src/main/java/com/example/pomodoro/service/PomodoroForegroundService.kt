@@ -169,7 +169,10 @@ class PomodoroForegroundService : Service() {
             .setContentIntent(openApp)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
+            .setAutoCancel(false)
+            .setLocalOnly(true)
             .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .addAction(
                 0,
                 if (state.running) "Пауза" else "Старт",
